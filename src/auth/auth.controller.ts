@@ -17,7 +17,7 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
-import { CreateUsuarioDto } from '../usuarios/dto/create-usuario.dto';
+import { CreateUsuarioDto, RegistroUsuarioDto } from '../usuarios/dto/create-usuario.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { UpdateProfileDto, ChangePasswordDto, ResetPasswordDto, DeactivateAccountDto } from './dto/update-profile.dto';
 import { UpdateUsuarioDto } from '../usuarios/dto/update-usuario.dto';
@@ -50,9 +50,9 @@ export class AuthController {
   }
 
   @Post('register')
-  async register(@Body() createUserDto: CreateUsuarioDto) {
+  async register(@Body() registroUsuarioDto: RegistroUsuarioDto) {
     try {
-      const tokens = await this.authService.register(createUserDto);
+      const tokens = await this.authService.register(registroUsuarioDto);
       if (!tokens) {
         throw new ConflictException('No se pudo registrar el usuario. Verifique que el email no esté en uso');
       }

@@ -19,37 +19,49 @@ export class LibrosService {
     private readonly estanteriaRepository: Repository<Estanteria>,
   ) {}
 
+  // Función para normalizar ISBN: eliminar guiones y pasar a minúsculas
+  private normalizeISBN(ISBN: string): string {
+    return ISBN.replace(/-/g, '').toLowerCase();
+  }
+
   async create(createLibroDto: CreateLibroDto): Promise<Libro> {
-    // Verificar si ya existe un libro con el mismo ISBN
+    // Soporta que el campo pueda llegar como isbn o ISBN
+    const isbnRaw = createLibroDto.ISBN ?? (createLibroDto as any).isbn;
+    if (!isbnRaw) {
+      throw new BadRequestException('ISBN es obligatorio');
+    }
+
+    const normalizedIsbn = this.normalizeISBN(isbnRaw);
+
+    // Buscar por ISBN normalizado
     const existingLibro = await this.libroRepository.findOne({
-      where: { ISBN: createLibroDto.ISBN },
+      where: { ISBN: normalizedIsbn },
     });
 
     if (existingLibro) {
       throw new ConflictException('Ya existe un libro con este ISBN');
     }
 
-    // Validar que el género existe
+    // Validar género
     const genero = await this.generoRepository.findOne({
       where: { id: createLibroDto.generoId },
     });
-
     if (!genero) {
       throw new BadRequestException('El género especificado no existe');
     }
 
-    // Validar que la estantería existe
+    // Validar estantería
     const estanteria = await this.estanteriaRepository.findOne({
       where: { id: createLibroDto.estanteriaId },
     });
-
     if (!estanteria) {
       throw new BadRequestException('La estantería especificada no existe');
     }
 
-    // Crear el libro
+    // Crear libro con ISBN normalizado
     const libro = this.libroRepository.create({
       ...createLibroDto,
+      ISBN: normalizedIsbn,
       genero,
       estanteria,
     });
@@ -81,8 +93,9 @@ export class LibrosService {
   }
 
   async findByISBN(ISBN: string): Promise<Libro | null> {
+    const normalizedIsbn = this.normalizeISBN(ISBN);
     return await this.libroRepository.findOne({
-      where: { ISBN },
+      where: { ISBN: normalizedIsbn },
       relations: ['genero', 'estanteria', 'prestamos'],
     });
   }
@@ -133,42 +146,40 @@ export class LibrosService {
   async update(id: number, updateLibroDto: UpdateLibroDto): Promise<Libro> {
     const libro = await this.findOne(id);
 
-    // Verificar ISBN único si se está cambiando
-    if (updateLibroDto.ISBN && updateLibroDto.ISBN !== libro.ISBN) {
-      const existingLibro = await this.libroRepository.findOne({
-        where: { ISBN: updateLibroDto.ISBN },
-      });
+    if (updateLibroDto.ISBN) {
+      const normalizedIsbn = this.normalizeISBN(updateLibroDto.ISBN);
 
-      if (existingLibro) {
-        throw new ConflictException('Ya existe un libro con este ISBN');
+      if (normalizedIsbn !== libro.ISBN) {
+        const existingLibro = await this.libroRepository.findOne({
+          where: { ISBN: normalizedIsbn },
+        });
+        if (existingLibro) {
+          throw new ConflictException('Ya existe un libro con este ISBN');
+        }
+        updateLibroDto.ISBN = normalizedIsbn;
       }
     }
 
-    // Validar género si se está cambiando
     if (updateLibroDto.generoId) {
       const genero = await this.generoRepository.findOne({
         where: { id: updateLibroDto.generoId },
       });
-
       if (!genero) {
         throw new BadRequestException('El género especificado no existe');
       }
       libro.genero = genero;
     }
 
-    // Validar estantería si se está cambiando
     if (updateLibroDto.estanteriaId) {
       const estanteria = await this.estanteriaRepository.findOne({
         where: { id: updateLibroDto.estanteriaId },
       });
-
       if (!estanteria) {
         throw new BadRequestException('La estantería especificada no existe');
       }
       libro.estanteria = estanteria;
     }
 
-    // Actualizar campos
     Object.assign(libro, updateLibroDto);
 
     return await this.libroRepository.save(libro);
@@ -177,7 +188,6 @@ export class LibrosService {
   async remove(id: number): Promise<void> {
     const libro = await this.findOne(id);
 
-    // Verificar si el libro tiene préstamos activos
     if (libro.prestamos && libro.prestamos.length > 0) {
       throw new ConflictException(
         'No se puede eliminar el libro porque tiene préstamos asociados'

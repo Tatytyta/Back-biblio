@@ -1,0 +1,48 @@
+name: 🚀 Deploy Biblioteca Backend API to VPS
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Copy project to VPS
+      uses: appleboy/scp-action@v0.1.3
+      with:
+        host: ${{ secrets.VPS_HOST }}
+        username: ${{ secrets.VPS_USER }}
+        key: ${{ secrets.VPS_KEY }}
+        source: "."
+        target: "/root/rodriguez_sandra/Biblioteca-backend"
+
+    - name: Run deploy commands on VPS
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.VPS_HOST }}
+        username: ${{ secrets.VPS_USER }}
+        key: ${{ secrets.VPS_KEY }}
+        script: |
+          cd /root/rodriguez_sandra/Biblioteca-backend
+          # Matar el proceso que está usando el puerto 3050
+          echo "Matar proceso en el puerto 3050..."
+          sudo lsof -t -i:3050 | xargs sudo kill -9  # Mata el proceso que usa el puerto 3050
+          
+          # Asegúrate de que el archivo .env se copie correctamente
+          echo -e "${{ secrets.ENV_FILE }}" > .env
+          
+          # Instalar dependencias, construir y reiniciar la aplicación
+          npm install
+          npm run build
+          
+          # Reiniciar PM2 con el nuevo código
+          pm2 stop biblioteca-app-api || true  # Detener el proceso si está en ejecución
+          pm2 delete biblioteca-app-api || true  # Eliminar el proceso si ya está activo
+          pm2 start dist/main.js --name biblioteca-app-api  # Iniciar el proceso desde el archivo compilado
+
+          

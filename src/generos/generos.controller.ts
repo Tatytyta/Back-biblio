@@ -27,7 +27,7 @@ export class GenerosController {
 
   @Post()
   @UseGuards(RolesGuard)
-  @Roles('administrador', 'bibliotecario')
+  @Roles('administrador', 'bibliotecario', 'admin')
   async create(@Body() createGeneroDto: CreateGeneroDto) {
     const genero = await this.generosService.create(createGeneroDto);
     return {

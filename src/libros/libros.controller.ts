@@ -23,7 +23,7 @@ import { Libro } from './libros.entity';
 
 @Controller('libros')
 @UseInterceptors(ResponseInterceptor)
-@UseGuards(JwtAuthGuard) // El guard JwtAuthGuard a nivel controlador para todas las rutas
+@UseGuards(JwtAuthGuard)
 export class LibrosController {
   constructor(private readonly librosService: LibrosService) {}
 
@@ -160,8 +160,8 @@ export class LibrosController {
   }
 
   @Delete(':id')
-  @UseGuards(JwtAuthGuard, RolesGuard)  // <- aquí combino ambos guards
-  @Roles('administrador', 'admin')                // <- el rol debe coincidir con el token: 'administrador'
+  @UseGuards(RolesGuard)
+  @Roles('admin', 'administrador')
   async remove(@Param('id', ParseIntPipe) id: number) {
     await this.librosService.remove(id);
     return {

@@ -161,7 +161,7 @@ export class LibrosController {
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)  // <- aquí combino ambos guards
-  @Roles('administrador')                // <- el rol debe coincidir con el token: 'administrador'
+  @Roles('administrador', 'admin')                // <- el rol debe coincidir con el token: 'administrador'
   async remove(@Param('id', ParseIntPipe) id: number) {
     await this.librosService.remove(id);
     return {

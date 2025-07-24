@@ -114,7 +114,7 @@ export class AuthController {
   // READ - Obtener todos los usuarios (solo admin)
   @Get('users')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('administrador')
+  @Roles('administrador', 'admin')
   async getAllUsers(@Query(ValidationPipe) query: GetUsersDto) {
     try {
       const users = await this.authService.getAllUsers(query);
@@ -133,7 +133,7 @@ export class AuthController {
   // READ - Obtener usuario por ID (solo admin)
   @Get('users/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('administrador')
+  @Roles('administrador', 'admin')
   async getUserById(@Param('id', ParseIntPipe) id: number) {
     try {
       const user = await this.authService.getUserById(id);
@@ -152,7 +152,7 @@ export class AuthController {
   // READ - Obtener estadísticas de usuarios (solo admin)
   @Get('users/stats/overview')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('administrador')
+  @Roles('administrador', 'admin')
   async getUserStats() {
     try {
       const stats = await this.authService.getUserStats();
@@ -186,7 +186,7 @@ export class AuthController {
   // UPDATE - Actualizar usuario (solo admin)
   @Put('users/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('administrador')
+  @Roles('administrador', 'admin')
   async updateUser(
     @Param('id', ParseIntPipe) id: number,
     @Body(ValidationPipe) updateData: UpdateUsuarioDto
@@ -229,7 +229,7 @@ export class AuthController {
   // UPDATE - Resetear contraseña de usuario (solo admin)
   @Put('users/:id/reset-password')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('administrador')
+  @Roles('administrador', 'admin')
   async resetPassword(
     @Param('id', ParseIntPipe) id: number,
     @Body(ValidationPipe) resetPasswordDto: ResetPasswordDto
@@ -251,7 +251,7 @@ export class AuthController {
   // UPDATE - Activar/Desactivar usuario (solo admin)
   @Put('users/:id/toggle-status')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('administrador')
+  @Roles('administrador', 'admin')
   async toggleUserStatus(@Param('id', ParseIntPipe) id: number) {
     try {
       const user = await this.authService.toggleUserStatus(id);
@@ -292,7 +292,7 @@ export class AuthController {
   // DELETE - Eliminar usuario (solo admin)
   @Delete('users/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('administrador')
+  @Roles('administrador', 'admin')
   async deleteUser(@Param('id', ParseIntPipe) id: number) {
     try {
       const result = await this.authService.deleteUser(id);

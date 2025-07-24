@@ -97,7 +97,7 @@ export class GenerosController {
 
   @Delete(':id')
   @UseGuards(RolesGuard)
-  @Roles('administrador')
+  @Roles('administrador', 'admin')
   async remove(@Param('id', ParseIntPipe) id: number) {
     await this.generosService.remove(id);
     return {

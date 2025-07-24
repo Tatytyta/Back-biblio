@@ -35,7 +35,7 @@ export class UsuariosController {
 
   @Post()
   @UseGuards(RolesGuard)
-  @Roles('administrador')
+  @Roles('administrador', 'admin')
   @HttpCode(HttpStatus.CREATED)
   async crear(@Body() dto: CreateUsuarioDto): Promise<SuccessResponseDto<Usuario>> {
     const usuario = await this.usuariosService.crear(dto);
@@ -52,7 +52,7 @@ export class UsuariosController {
 
   @Get()
   @UseGuards(RolesGuard)
-  @Roles('administrador')
+  @Roles('administrador', 'admin')
   async obtenerTodos(
     @Query('page', new ParseIntPipe({ optional: true })) page = 1,
     @Query('limit', new ParseIntPipe({ optional: true })) limit = 10,
@@ -81,7 +81,7 @@ export class UsuariosController {
 
   @Get('estadisticas')
   @UseGuards(RolesGuard)
-  @Roles('administrador')
+  @Roles('administrador', 'admin')
   async obtenerEstadisticas(): Promise<SuccessResponseDto<EstadisticasUsuarios>> {
     const estadisticas = await this.usuariosService.obtenerEstadisticas();
     return new SuccessResponseDto('Estadísticas obtenidas correctamente', estadisticas);
@@ -89,7 +89,7 @@ export class UsuariosController {
 
   @Get('buscar')
   @UseGuards(RolesGuard)
-  @Roles('administrador')
+  @Roles('administrador', 'admin')
   async buscarUsuarios(
     @Query('termino') termino: string,
     @Query('limite', new ParseIntPipe({ optional: true })) limite = 10
@@ -106,7 +106,7 @@ export class UsuariosController {
 
   @Get(':id')
   @UseGuards(RolesGuard)
-  @Roles('administrador')
+  @Roles('administrador', 'admin')
   async obtenerPorId(@Param('id', ParseIntPipe) id: number): Promise<SuccessResponseDto<Usuario>> {
     const usuario = await this.usuariosService.obtenerPorId(id);
     return new SuccessResponseDto('Usuario obtenido correctamente', usuario);
@@ -126,7 +126,7 @@ export class UsuariosController {
 
   @Put(':id')
   @UseGuards(RolesGuard)
-  @Roles('administrador')
+  @Roles('administrador', 'admin')
   async actualizar(
     @Param('id', ParseIntPipe) id: number, 
     @Body() dto: UpdateUsuarioDto
@@ -146,7 +146,7 @@ export class UsuariosController {
 
   @Patch(':id/activar')
   @UseGuards(RolesGuard)
-  @Roles('administrador')
+  @Roles('administrador', 'admin')
   @HttpCode(HttpStatus.OK)
   async activarUsuario(@Param('id', ParseIntPipe) id: number): Promise<SuccessResponseDto<Usuario>> {
     const usuario = await this.usuariosService.activarDesactivar(id, true);
@@ -155,7 +155,7 @@ export class UsuariosController {
 
   @Patch(':id/desactivar')
   @UseGuards(RolesGuard)
-  @Roles('administrador')
+  @Roles('administrador', 'admin')
   @HttpCode(HttpStatus.OK)
   async desactivarUsuario(@Param('id', ParseIntPipe) id: number): Promise<SuccessResponseDto<Usuario>> {
     const usuario = await this.usuariosService.activarDesactivar(id, false);
@@ -164,7 +164,7 @@ export class UsuariosController {
 
   @Delete(':id')
   @UseGuards(RolesGuard)
-  @Roles('administrador')
+  @Roles('administrador', 'admin')
   async eliminar(@Param('id', ParseIntPipe) id: number): Promise<SuccessResponseDto<{ message: string }>> {
     const resultado = await this.usuariosService.eliminar(id);
     return new SuccessResponseDto('Usuario eliminado correctamente', resultado);
@@ -173,7 +173,7 @@ export class UsuariosController {
   // Endpoints de compatibilidad con versiones anteriores
   @Post('create')
   @UseGuards(RolesGuard)
-  @Roles('administrador')
+  @Roles('administrador', 'admin')
   @HttpCode(HttpStatus.CREATED)
   async create(@Body() dto: CreateUsuarioDto): Promise<SuccessResponseDto<Usuario>> {
     return this.crear(dto);
@@ -181,7 +181,7 @@ export class UsuariosController {
 
   @Get('find-all')
   @UseGuards(RolesGuard)
-  @Roles('administrador')
+  @Roles('administrador', 'admin')
   async findAll(
     @Query('page', new ParseIntPipe({ optional: true })) page = 1,
     @Query('limit', new ParseIntPipe({ optional: true })) limit = 10,
@@ -206,14 +206,14 @@ export class UsuariosController {
 
   @Get('find-one/:id')
   @UseGuards(RolesGuard)
-  @Roles('administrador')
+  @Roles('administrador', 'admin')
   async findOne(@Param('id', ParseIntPipe) id: number): Promise<SuccessResponseDto<Usuario>> {
     return this.obtenerPorId(id);
   }
 
   @Put('update/:id')
   @UseGuards(RolesGuard)
-  @Roles('administrador')
+  @Roles('administrador', 'admin')
   async update(
     @Param('id', ParseIntPipe) id: number, 
     @Body() dto: UpdateUsuarioDto
@@ -223,7 +223,7 @@ export class UsuariosController {
 
   @Delete('remove/:id')
   @UseGuards(RolesGuard)
-  @Roles('administrador')
+  @Roles('administrador', 'admin')
   async remove(@Param('id', ParseIntPipe) id: number): Promise<SuccessResponseDto<{ message: string }>> {
     return this.eliminar(id);
   }
